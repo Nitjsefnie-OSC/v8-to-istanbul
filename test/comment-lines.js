@@ -6,6 +6,13 @@ const { resolve } = require('path')
 const convert = require('../index')
 const codeLines = require('../lib/code-lines')
 const { Script } = require('vm')
+const supportsOptionalChaining = (() => {
+  try {
+    return Boolean(new Script('a?.b'))
+  } catch (err) {
+    return false
+  }
+})()
 
 require('tap').mochaGlobals()
 
@@ -147,11 +154,11 @@ describe('Code line classification', () => {
           assert.doesNotThrow(() => new Script(comment))
           assert.deepStrictEqual(codeLines(comment), [true, false, false, false])
         }
-      })
+      }, { skip: access === '?.' && !supportsOptionalChaining })
     }
   }
 
-  for (const [name, head] of [
+  for (const [name, head, optionalChaining] of [
     ['array spread typeof regex', 'const value = [...typeof /[/*]/];'],
     ['object spread typeof regex', 'const value = { ...typeof /[/*]/ };'],
     ['argument spread typeof regex', 'const value = Array(...typeof /[/*]/);'],
@@ -162,15 +169,15 @@ describe('Code line classification', () => {
     ['spread await regex', 'async function run() { return [...await /[/*]/.source]; } run();'],
     ['spread yield regex', 'function * run() { return [...yield /[/*]/]; }'],
     ['spread then division regex', 'const a = []; const value = [...a].map(() => {}) / /[/*]/.source.length;'],
-    ['optional member after spread', 'const value = [...({ try: "x" })?.try];'],
-    ['spread inside optional index', 'const value = ({ x: 1 })?.[[...typeof /[/*]/]];']
+    ['optional member after spread', 'const value = [...({ try: "x" })?.try];', true],
+    ['spread inside optional index', 'const value = ({ x: 1 })?.[[...typeof /[/*]/]];', true]
   ]) {
     it(name, async () => {
       const source = `${head}\nfunction missed() {\n  return 1;\n}\n`
       assert.doesNotThrow(() => new Script(source))
       assert.deepStrictEqual(codeLines(source), [true, true, true, true, false])
       assert.deepStrictEqual(statements(await coverage(source)), [[1, 0], [2, 0], [3, 0], [4, 0]])
-    })
+    }, { skip: optionalChaining && !supportsOptionalChaining })
   }
 
   it('spread then division keeps multiline comment lines out of coverage', async () => {

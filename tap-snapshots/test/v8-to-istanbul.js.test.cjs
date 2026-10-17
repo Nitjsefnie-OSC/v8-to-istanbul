@@ -1654,11 +1654,9 @@ Object {
   "s": Object {
     "0": 1,
     "1": 1,
-    "2": 1,
     "3": 1,
     "4": 1,
     "5": 1,
-    "6": 1,
     "7": 1,
   },
   "statementMap": Object {
@@ -1680,16 +1678,6 @@ Object {
       "start": Object {
         "column": 0,
         "line": 2,
-      },
-    },
-    "2": Object {
-      "end": Object {
-        "column": 0,
-        "line": 3,
-      },
-      "start": Object {
-        "column": 0,
-        "line": 3,
       },
     },
     "3": Object {
@@ -1720,16 +1708,6 @@ Object {
       "start": Object {
         "column": 0,
         "line": 6,
-      },
-    },
-    "6": Object {
-      "end": Object {
-        "column": 0,
-        "line": 7,
-      },
-      "start": Object {
-        "column": 0,
-        "line": 7,
       },
     },
     "7": Object {
